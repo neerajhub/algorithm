@@ -2,50 +2,48 @@ package com.myproject.test.graph;
 
 public class UnionFind {
 
-    public int root [];
+    private int[] root;
+    // Use a rank array to record the height of each vertex, i.e., the "rank" of each vertex.
+    private int[] rank;
 
-    public UnionFind(int size){
-        root = new int [size];
+    public UnionFind(int size) {
+        root = new int[size];
+        rank = new int[size];
+        for (int i = 0; i < size; i++) {
+            root[i] = i;
+            rank[i] = 1; // The initial "rank" of each vertex is 1, because each of them is
+            // a standalone vertex with no connection to other vertices.
+        }
     }
 
-    //quick find and union
-    public int quickFind(int x){
-        return root[x];
+    // The find function here is the same as that in the disjoint set with path compression.
+    public int find(int x) {
+        if (x == root[x]) {
+            return x;
+        }
+        // Some ranks may become obsolete so they are not updated
+        return root[x] = find(root[x]);
     }
 
-    public void union(int x, int y){
-        int rootX = root[x];
-        int rootY = root[y];
-
-        if(rootX != rootY){
-            for(int i = 0; i < root.length; i++){
-                if(root[i] == rootY) root[i]  = rootX;
+    // The union function with union by rank
+    public void union(int x, int y) {
+        int rootX = find(x);
+        int rootY = find(y);
+        if (rootX != rootY) {
+            if (rank[rootX] > rank[rootY]) {
+                root[rootY] = rootX;
+            } else if (rank[rootX] < rank[rootY]) {
+                root[rootX] = rootY;
+            } else {
+                root[rootY] = rootX;
+                rank[rootX] += 1;
             }
         }
     }
 
-    public boolean connected(int x, int y){
-        return quickFind(x) == quickFind(y);
+    public boolean connected(int x, int y) {
+        return find(x) == find(y);
     }
 
-
-    ///below method for quickUnion
-
-    public void quickUnion(int x, int y){
-       int rootX= root[x];
-       int rootY = root[y];
-       if(rootX  != rootY){
-           root[y] = rootX;
-       }
-    }
-
-
-    public int find(int x){
-         int out = root[x];
-         while( out != root[out]){
-               out = root[out];
-         }
-         return out;
-    }
 
 }
